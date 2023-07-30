@@ -1,38 +1,39 @@
 const {DataTypes} = require('sequelize')
 const db = require('../db/conn')
 
-const User = db.define('User', {
-    pictureProfile:{
-        type: DataTypes.STRING
-    },
-    name:{
+const User = require('./Users')
+
+const Adress = db.define('Adress', {
+    adress:{
         type: DataTypes.STRING,
         allowNull: false
     },
-    email:{
+    CEP:{
         type: DataTypes.STRING,
         allowNull: false
     },
-    cellphone:{
+    number:{
         type: DataTypes.STRING,
         allowNull: false
     },
-    password:{
+    locationState:{
         type: DataTypes.STRING,
         allowNull: false
     },
-    CPF:{
-        type: DataTypes.STRING,
+    neighborhood:{
+        type:DataTypes.STRING,
         allowNull: false
     },
-    RG:{
-        type: DataTypes.STRING,
+    city:{
+        type:DataTypes.STRING,
         allowNull: false
     },
-    birthDate:{
-        type: DataTypes.DATE,
+    complement:{
+        type:DataTypes.STRING,
         allowNull: false
     }
 })
 
-module.exports = User
+Adress.belongsTo(User)
+
+module.exports = Adress
