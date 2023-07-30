@@ -32,10 +32,6 @@ const User = db.define('User', {
     birthDate:{
         type: DataTypes.DATE,
         allowNull: false
-    },
-    adress:{
-        type: DataTypes.JSON,
-        allowNull: false
     }
 })
 
