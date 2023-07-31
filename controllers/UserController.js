@@ -1,3 +1,5 @@
+const { where } = require('sequelize')
+const createUserToken = require('../helpers/userToken')
 const User = require('../models/Users')
 const bcrypt = require('bcrypt')
 
@@ -42,7 +44,7 @@ module.exports = class UserController {
             return
         }
         
-        const userExist = await User.findOne({email, password})
+        const userExist = await User.findOne({where:{email: email, password: password}})
 
         if(userExist){
             res.status(422).json({message: "esse email já esta sendo utilizado"})
@@ -53,8 +55,8 @@ module.exports = class UserController {
         const passwordHash = await bcrypt.hash(password, salt)
 
         try {
-            await User.create({name, email, cellphone, password: passwordHash, CPF, RG, birthDate})
-            res.status(201).json({message: "Usuario cadastrado com sucesso", newUser})
+            const newUser = await User.create({name, email, cellphone, password: passwordHash, CPF, RG, birthDate})
+            await createUserToken(newUser, req, res)
         } catch (error) {
             res.status(500).json({message: "deu erro", error})
         }
