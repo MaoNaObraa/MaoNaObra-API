@@ -7,8 +7,8 @@ const User = db.define("User", {
     primaryKey: true,
     autoIncrement: true
   },
-  pictureProfile: {
-    type: DataTypes.STRING,
+  image: {
+    type: DataTypes.TEXT,
   },
   name: {
     type: DataTypes.STRING,

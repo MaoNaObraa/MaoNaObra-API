@@ -212,28 +212,12 @@ module.exports = class UserController {
     const token = getToken(req);
     const user = await getUserByToken(token);
   
-    const {
-      name,
-      email,
-      cellphone,
-      password,
-      confirmPassword,
-      CPF,
-      RG,
-      birthDate,
-      completeAdress,
-      CEP,
-      number,
-      neighborhood,
-      locationState,
-      complement,
-      city,
-      tipoCadastro,
-      descriptionAd,
-      servicesAd,
-      category,
-      picturesAd,
-    } = req.body;
+    const {name,email,cellphone,password,confirmPassword,CPF,RG,birthDate,completeAdress,CEP,number,neighborhood,locationState,complement,city,tipoCadastro,descriptionAd,servicesAd,category,picturesAd,} = req.body;
+
+    if(req.file){
+      user.image = req.file.filename
+     
+    }
   
     if (!name || !email || !cellphone || !CPF || !RG || !birthDate || !completeAdress || !CEP || !number || !locationState || !neighborhood || !city || !complement || !tipoCadastro) {
       res.status(422).json({ message: "Campos obrigatórios não foram preenchidos" });
@@ -251,26 +235,7 @@ module.exports = class UserController {
       return;
     }
   
-    const updatedData = {
-      name,
-      email,
-      cellphone,
-      CPF,
-      RG,
-      birthDate,
-      completeAdress,
-      CEP,
-      number,
-      neighborhood,
-      locationState,
-      complement,
-      city,
-      tipoCadastro,
-      descriptionAd,
-      servicesAd,
-      category,
-      picturesAd,
-    };
+    const updatedData = {image:user.image,name,email,cellphone,CPF,RG,birthDate,completeAdress,CEP,number,neighborhood,locationState,complement,city,tipoCadastro,descriptionAd,servicesAd,category,picturesAd,};
   
     if (password) {
       const salt = await bcrypt.genSalt(12);
