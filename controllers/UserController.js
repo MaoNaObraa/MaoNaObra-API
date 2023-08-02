@@ -1,13 +1,12 @@
 const { where } = require("sequelize");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
 
-const getToken = require("../helpers/getToken")
+const getToken = require("../helpers/getToken");
 const createUserToken = require("../helpers/userToken");
+const getUserByToken = require("../helpers/getUserByToken");
 
 const User = require("../models/Users");
-
-
 
 module.exports = class UserController {
   //register
@@ -101,15 +100,13 @@ module.exports = class UserController {
         .json({ message: "O complemento do endereço é obrigatório" });
       return;
     }
-    if(!tipoCadastro){
-      res
-        .status(422)
-        .json({ message: "O tipo de cadastro é obrigatório" });
+    if (!tipoCadastro) {
+      res.status(422).json({ message: "O tipo de cadastro é obrigatório" });
       return;
     }
 
     const userExist = await User.findOne({
-      where: { email: email},
+      where: { email: email },
     });
 
     if (userExist) {
@@ -125,7 +122,7 @@ module.exports = class UserController {
         name,
         email,
         cellphone,
-        password: passwordHash, 
+        password: passwordHash,
         CPF,
         RG,
         birthDate,
@@ -178,41 +175,115 @@ module.exports = class UserController {
   }
 
   static async checkUser(req, res) {
-    let currentUser
-    
-    if(req.headers.authorization) {
-        const token = getToken(req);
-        const decoded = jwt.verify(token, "logInScrettoken");
-        console.log(decoded)
+    let currentUser;
 
-        currentUser = await User.findByPk(decoded.id);
+    if (req.headers.authorization) {
+      const token = getToken(req);
+      const decoded = jwt.verify(token, "logInScrettoken");
+      console.log(decoded);
 
-        currentUser.password = undefined;
+      currentUser = await User.findByPk(decoded.id);
 
-    }else {
-        currentUser = null
+      currentUser.password = undefined;
+    } else {
+      currentUser = null;
     }
 
-    res.status(200).json(currentUser)
+    res.status(200).json(currentUser);
   }
 
-  static async getUserById(req, res){
-    const id = req.params.id
+  static async getUserById(req, res) {
+    const id = req.params.id;
 
     const user = await User.findByPk(id, {
-        attributes: { exclude: ['password'] }
-      })
+      attributes: { exclude: ["password"] },
+    });
 
     if (!user) {
-        res.status(422).json({ message: "Usuario nao encontrado" });
-        return;
-      }
+      res.status(422).json({ message: "Usuario nao encontrado" });
+      return;
+    }
 
-    res.status(200).json({user})
+    res.status(200).json({ user });
   }
 
-  static async editUser(req, res){
-    res.status(200).json({ message: "Usuario editado com sucesso" });
-    return;
+  static async editUser(req, res) {
+    const userId = req.params.id;
+    const token = getToken(req);
+    const user = await getUserByToken(token);
+  
+    const {
+      name,
+      email,
+      cellphone,
+      password,
+      confirmPassword,
+      CPF,
+      RG,
+      birthDate,
+      completeAdress,
+      CEP,
+      number,
+      neighborhood,
+      locationState,
+      complement,
+      city,
+      tipoCadastro,
+      descriptionAd,
+      servicesAd,
+      category,
+      picturesAd,
+    } = req.body;
+  
+    if (!name || !email || !cellphone || !CPF || !RG || !birthDate || !completeAdress || !CEP || !number || !locationState || !neighborhood || !city || !complement || !tipoCadastro) {
+      res.status(422).json({ message: "Campos obrigatórios não foram preenchidos" });
+      return;
+    }
+  
+    if (password !== confirmPassword) {
+      res.status(422).json({ message: "As senhas não conferem" });
+      return;
+    }
+  
+    const userExist = await User.findOne({ where: { email: email } });
+    if (userExist && user.email !== email) {
+      res.status(422).json({ message: "Por favor utilize outro email" });
+      return;
+    }
+  
+    const updatedData = {
+      name,
+      email,
+      cellphone,
+      CPF,
+      RG,
+      birthDate,
+      completeAdress,
+      CEP,
+      number,
+      neighborhood,
+      locationState,
+      complement,
+      city,
+      tipoCadastro,
+      descriptionAd,
+      servicesAd,
+      category,
+      picturesAd,
+    };
+  
+    if (password) {
+      const salt = await bcrypt.genSalt(12);
+      const passwordHash = await bcrypt.hash(password, salt);
+      updatedData.password = passwordHash;
+    }
+  
+    try {
+      await User.update(updatedData, { where: { id: userId } });
+      res.status(200).json({ message: "Usuário atualizado com sucesso" });
+    } catch (error) {
+      res.status(500).json({ message: "Erro ao atualizar usuário", error });
+    }
   }
+  
 };
