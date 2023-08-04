@@ -83,6 +83,15 @@ const User = db.define("User", {
     type: DataTypes.JSON,
     defaultValue: [],
   },
+  whatsappContact:{
+    type: DataTypes.STRING
+  },
+  instagramContact:{
+    type: DataTypes.STRING
+  },
+  telephoneContact:{
+    type: DataTypes.STRING
+  }
 })
-
+User.sync()
 module.exports = User
