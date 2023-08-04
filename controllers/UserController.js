@@ -216,7 +216,12 @@ module.exports = class UserController {
 
     if(req.file){
       user.image = req.file.filename
-     
+    }
+
+    const images = req.files
+    if(images){
+      const imageFilenames = images.map(image => image.filename);
+      user.picturesAd = imageFilenames;
     }
   
     if (!name || !email || !cellphone || !CPF || !RG || !birthDate || !completeAdress || !CEP || !number || !locationState || !neighborhood || !city || !complement || !tipoCadastro) {
@@ -235,7 +240,7 @@ module.exports = class UserController {
       return;
     }
   
-    const updatedData = {image:user.image,name,email,cellphone,CPF,RG,birthDate,completeAdress,CEP,number,neighborhood,locationState,complement,city,tipoCadastro,descriptionAd,servicesAd,category,picturesAd,};
+    const updatedData = {image:user.image,name,email,cellphone,CPF,RG,birthDate,completeAdress,CEP,number,neighborhood,locationState,complement,city,tipoCadastro,descriptionAd,servicesAd,category};
   
     if (password) {
       const salt = await bcrypt.genSalt(12);

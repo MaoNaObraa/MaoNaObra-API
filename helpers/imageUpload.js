@@ -3,11 +3,9 @@ const path = require("path")
 
 const imageStorage = multer.diskStorage({
     destination: function(req,file,cb){
-        let folder =""
+        let folder = "users"
 
-        if(req.baseUrl.includes("users")){
-            folder = "users"
-        }else if(req.baseUrl.includes("servicos")){
+        if (req.body.tipoCadastro === "prestadorServico") {
             folder = "servicos"
         }
 
@@ -17,7 +15,7 @@ const imageStorage = multer.diskStorage({
         cb(null, Date.now() + path.extname(file.originalname))
     }
 
-})
+})  
 
 const imageUpload = multer({
     storage: imageStorage,
