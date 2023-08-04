@@ -7,8 +7,8 @@ const User = db.define("User", {
     primaryKey: true,
     autoIncrement: true
   },
-  pictureProfile: {
-    type: DataTypes.STRING,
+  image: {
+    type: DataTypes.TEXT,
   },
   name: {
     type: DataTypes.STRING,
@@ -80,8 +80,18 @@ const User = db.define("User", {
     type: DataTypes.STRING,
   },
   picturesAd: {
-    type: DataTypes.TEXT
+    type: DataTypes.JSON,
+    defaultValue: [],
   },
+  whatsappContact:{
+    type: DataTypes.STRING
+  },
+  instagramContact:{
+    type: DataTypes.STRING
+  },
+  telephoneContact:{
+    type: DataTypes.STRING
+  }
 })
-
+User.sync()
 module.exports = User
