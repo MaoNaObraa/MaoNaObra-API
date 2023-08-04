@@ -80,7 +80,8 @@ const User = db.define("User", {
     type: DataTypes.STRING,
   },
   picturesAd: {
-    type: DataTypes.TEXT
+    type: DataTypes.JSON,
+    defaultValue: [],
   },
 })
 

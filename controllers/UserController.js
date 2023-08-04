@@ -32,6 +32,9 @@ module.exports = class UserController {
       servicesAd,
       category,
       picturesAd,
+      whatsappContact,
+      instagramContact,
+      telephoneContact
     } = req.body;
 
     if (!name) {
@@ -138,6 +141,9 @@ module.exports = class UserController {
         servicesAd,
         category,
         picturesAd,
+        whatsappContact,
+        instagramContact,
+        telephoneContact
       });
       await createUserToken(newUser, req, res);
     } catch (error) {
@@ -180,9 +186,8 @@ module.exports = class UserController {
     if (req.headers.authorization) {
       const token = getToken(req);
       const decoded = jwt.verify(token, "logInScrettoken");
-      console.log(decoded);
-
-      currentUser = await User.findByPk(decoded.id);
+      currentUser = await User.findByPk(decoded.id)
+      
 
       currentUser.password = undefined;
     } else {
@@ -207,12 +212,35 @@ module.exports = class UserController {
     res.status(200).json({ user });
   }
 
+  static async editAd(req, res){
+    const userId = req.params.id
+    const token = getToken(req)
+    const user = await getUserByToken(token)
+
+    const{descriptionAd,servicesAd,category,picturesAd,whatsappContact,instagramContact,telephoneContact} = req.body
+
+    const images = req.files
+    if(images){
+      const imageFilenames = images.map(image => image.filename);
+      user.picturesAd = imageFilenames;
+    }
+    const updatedData = {picturesAd: user.picturesAd,descriptionAd,servicesAd,category,whatsappContact,instagramContact,telephoneContact};
+
+    try {
+      await User.update(updatedData, { where: { id: userId } });
+      res.status(200).json({ message: "Anuncio enviado com sucesso" });
+    } catch (error) {
+      res.status(500).json({ message: "Erro ao enviar anuncio", error });
+    }
+
+  }
+
   static async editUser(req, res) {
     const userId = req.params.id;
     const token = getToken(req);
     const user = await getUserByToken(token);
   
-    const {name,email,cellphone,password,confirmPassword,CPF,RG,birthDate,completeAdress,CEP,number,neighborhood,locationState,complement,city,tipoCadastro,descriptionAd,servicesAd,category,picturesAd,} = req.body;
+    const {name,email,cellphone,password,confirmPassword,CPF,RG,birthDate,completeAdress,CEP,number,neighborhood,locationState,complement,city,tipoCadastro,descriptionAd,servicesAd,category,picturesAd,whatsappContact,instagramContact,telephoneContact} = req.body;
 
     if(req.file){
       user.image = req.file.filename
@@ -240,7 +268,7 @@ module.exports = class UserController {
       return;
     }
   
-    const updatedData = {image:user.image,name,email,cellphone,CPF,RG,birthDate,completeAdress,CEP,number,neighborhood,locationState,complement,city,tipoCadastro,descriptionAd,servicesAd,category};
+    const updatedData = {image:user.image,name,email,cellphone,CPF,RG,birthDate,completeAdress,CEP,number,neighborhood,locationState,complement,city,tipoCadastro,picturesAd: user.picturesAd, descriptionAd,servicesAd,category,whatsappContact,instagramContact,telephoneContact};
   
     if (password) {
       const salt = await bcrypt.genSalt(12);
