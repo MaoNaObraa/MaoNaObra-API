@@ -3,16 +3,19 @@ const path = require("path")
 
 const imageStorage = multer.diskStorage({
     destination: function(req,file,cb){
-        let folder = "users"
+        let folder = ""
 
-        if (req.body.tipoCadastro === "prestadorServico") {
-            folder = "servicos"
+        // Verifique o nome do campo para determinar o tipo de imagem
+        if (file.fieldname === "image") {
+            folder = "users"; // Pasta para fotos de perfil
+        } else if (file.fieldname === "picturesAd") {
+            folder = "servicos"; // Pasta para fotos de serviços
         }
 
         cb(null, `public/images/${folder}`)
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname))
+        cb(null, Date.now()+ String(Math.floor(Math.random() * 1000)) + path.extname(file.originalname))
     }
 
 })  

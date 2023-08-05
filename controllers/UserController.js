@@ -12,6 +12,7 @@ module.exports = class UserController {
   //register
   static async register(req, res) {
     const {
+      image,
       name,
       email,
       cellphone,
@@ -37,77 +38,9 @@ module.exports = class UserController {
       telephoneContact
     } = req.body;
 
-    if (!name) {
-      res.status(422).json({ message: "o nome é obrigatório" });
-      return;
-    }
-    if (!email) {
-      res.status(422).json({ message: "o email é obrigatório" });
-      return;
-    }
-    if (!cellphone) {
-      res.status(422).json({ message: "o celular é obrigatório" });
-      return;
-    }
-    if (!password) {
-      res.status(422).json({ message: "a senha é obrigatório" });
-      return;
-    }
-    if (!confirmPassword) {
-      res.status(422).json({ message: "a confirmação de senha é obrigatório" });
-      return;
-    }
-    if (password !== confirmPassword) {
-      res.status(422).json({ message: "as senhas não conferem" });
-      return;
-    }
-    if (!CPF) {
-      res.status(422).json({ message: "o CPF é obrigatório" });
-      return;
-    }
-    if (!RG) {
-      res.status(422).json({ message: "o RG é obrigatório" });
-      return;
-    }
-    if (!birthDate) {
-      res.status(422).json({ message: "a data de nascimento é obrigatório" });
-      return;
-    }
-    if (!completeAdress) {
-      res.status(422).json({ message: "O endereço é obrigatório" });
-      return;
-    }
-    if (!CEP) {
-      res.status(422).json({ message: "O endereço completo é obrigatorio" });
-      return;
-    }
-    if (!number) {
-      res.status(422).json({ message: "O número do endereço é obrigatório" });
-      return;
-    }
-    if (!locationState) {
-      res.status(422).json({ message: "O estado do endereço é obrigatório" });
-      return;
-    }
-    if (!neighborhood) {
-      res.status(422).json({ message: "O bairro do endereço é obrigatório" });
-      return;
-    }
-    if (!city) {
-      res.status(422).json({ message: "A cidade do endereço é obrigatória" });
-      return;
-    }
-    if (!complement) {
-      res
-        .status(422)
-        .json({ message: "O complemento do endereço é obrigatório" });
-      return;
-    }
-    if (!tipoCadastro) {
-      res.status(422).json({ message: "O tipo de cadastro é obrigatório" });
-      return;
-    }
+    if (!name || !email || !cellphone || !password || !confirmPassword || password !== confirmPassword || !CPF || !RG || !birthDate || !completeAdress || !CEP || !number || !locationState || !neighborhood || !city || !complement || !tipoCadastro) { res.status(422).json({ message: "Preencha todos os campos obrigatórios corretamente" }); return; }
 
+    
     const userExist = await User.findOne({
       where: { email: email },
     });
@@ -116,12 +49,23 @@ module.exports = class UserController {
       res.status(422).json({ message: "esse email já esta sendo utilizado" });
       return;
     }
+    let profileImage = ''
+    if(req.file){
+      profileImage = req.file.filename
+    }
+
+    let picturesAdArray = [];
+    const images = Object.values(req.files.picturesAd);
+    images.forEach((image) => {
+      picturesAdArray.push(image.filename);
+    });
 
     const salt = await bcrypt.genSalt(12);
     const passwordHash = await bcrypt.hash(password, salt);
 
     try {
       const newUser = await User.create({
+        image: profileImage,
         name,
         email,
         cellphone,
@@ -140,7 +84,7 @@ module.exports = class UserController {
         descriptionAd,
         servicesAd,
         category,
-        picturesAd,
+        picturesAd: JSON.stringify(picturesAdArray),
         whatsappContact,
         instagramContact,
         telephoneContact
@@ -187,7 +131,6 @@ module.exports = class UserController {
       const token = getToken(req);
       const decoded = jwt.verify(token, "logInScrettoken");
       currentUser = await User.findByPk(decoded.id)
-      
 
       currentUser.password = undefined;
     } else {
