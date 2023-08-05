@@ -35,12 +35,36 @@ module.exports = class UserController {
       picturesAd,
       whatsappContact,
       instagramContact,
-      telephoneContact
+      telephoneContact,
     } = req.body;
 
-    if (!name || !email || !cellphone || !password || !confirmPassword || password !== confirmPassword || !CPF || !RG || !birthDate || !completeAdress || !CEP || !number || !locationState || !neighborhood || !city || !complement || !tipoCadastro) { res.status(422).json({ message: "Preencha todos os campos obrigatórios corretamente" }); return; }
+    if (
+      !name ||
+      !email ||
+      !cellphone ||
+      !password ||
+      !confirmPassword ||
+      password !== confirmPassword ||
+      !CPF ||
+      !RG ||
+      !birthDate ||
+      !completeAdress ||
+      !CEP ||
+      !number ||
+      !locationState ||
+      !neighborhood ||
+      !city ||
+      !complement ||
+      !tipoCadastro
+    ) {
+      res
+        .status(422)
+        .json({
+          message: "Preencha todos os campos obrigatórios corretamente",
+        });
+      return;
+    }
 
-    
     const userExist = await User.findOne({
       where: { email: email },
     });
@@ -49,16 +73,19 @@ module.exports = class UserController {
       res.status(422).json({ message: "esse email já esta sendo utilizado" });
       return;
     }
-    let profileImage = ''
-    if(req.file){
-      profileImage = req.file.filename
+    let profileImage = "";
+    if (req.file) {
+      profileImage = req.file.filename;
     }
 
     let picturesAdArray = [];
-    const images = Object.values(req.files.picturesAd);
-    images.forEach((image) => {
-      picturesAdArray.push(image.filename);
-    });
+    if (req.files.picturesAd) {
+      const images = Object.values(req.files.picturesAd);
+
+      images.forEach((image) => {
+        picturesAdArray.push(image.filename);
+      });
+    }
 
     const salt = await bcrypt.genSalt(12);
     const passwordHash = await bcrypt.hash(password, salt);
@@ -87,7 +114,7 @@ module.exports = class UserController {
         picturesAd: JSON.stringify(picturesAdArray),
         whatsappContact,
         instagramContact,
-        telephoneContact
+        telephoneContact,
       });
       await createUserToken(newUser, req, res);
     } catch (error) {
@@ -130,7 +157,7 @@ module.exports = class UserController {
     if (req.headers.authorization) {
       const token = getToken(req);
       const decoded = jwt.verify(token, "logInScrettoken");
-      currentUser = await User.findByPk(decoded.id)
+      currentUser = await User.findByPk(decoded.id);
 
       currentUser.password = undefined;
     } else {
@@ -155,19 +182,35 @@ module.exports = class UserController {
     res.status(200).json({ user });
   }
 
-  static async editAd(req, res){
-    const userId = req.params.id
-    const token = getToken(req)
-    const user = await getUserByToken(token)
+  static async editAd(req, res) {
+    const userId = req.params.id;
+    const token = getToken(req);
+    const user = await getUserByToken(token);
 
-    const{descriptionAd,servicesAd,category,picturesAd,whatsappContact,instagramContact,telephoneContact} = req.body
+    const {
+      descriptionAd,
+      servicesAd,
+      category,
+      picturesAd,
+      whatsappContact,
+      instagramContact,
+      telephoneContact,
+    } = req.body;
 
-    const images = req.files
-    if(images){
-      const imageFilenames = images.map(image => image.filename);
+    const images = req.files;
+    if (images) {
+      const imageFilenames = images.map((image) => image.filename);
       user.picturesAd = imageFilenames;
     }
-    const updatedData = {picturesAd: user.picturesAd,descriptionAd,servicesAd,category,whatsappContact,instagramContact,telephoneContact};
+    const updatedData = {
+      picturesAd: user.picturesAd,
+      descriptionAd,
+      servicesAd,
+      category,
+      whatsappContact,
+      instagramContact,
+      telephoneContact,
+    };
 
     try {
       await User.update(updatedData, { where: { id: userId } });
@@ -175,50 +218,113 @@ module.exports = class UserController {
     } catch (error) {
       res.status(500).json({ message: "Erro ao enviar anuncio", error });
     }
-
   }
 
   static async editUser(req, res) {
     const userId = req.params.id;
     const token = getToken(req);
     const user = await getUserByToken(token);
-  
-    const {name,email,cellphone,password,confirmPassword,CPF,RG,birthDate,completeAdress,CEP,number,neighborhood,locationState,complement,city,tipoCadastro,descriptionAd,servicesAd,category,picturesAd,whatsappContact,instagramContact,telephoneContact} = req.body;
 
-    if(req.file){
-      user.image = req.file.filename
+    const {
+      name,
+      email,
+      cellphone,
+      password,
+      confirmPassword,
+      CPF,
+      RG,
+      birthDate,
+      completeAdress,
+      CEP,
+      number,
+      neighborhood,
+      locationState,
+      complement,
+      city,
+      tipoCadastro,
+      descriptionAd,
+      servicesAd,
+      category,
+      picturesAd,
+      whatsappContact,
+      instagramContact,
+      telephoneContact,
+    } = req.body;
+
+    if (req.file) {
+      user.image = req.file.filename;
     }
 
-    const images = req.files
-    if(images){
-      const imageFilenames = images.map(image => image.filename);
+    const images = req.files;
+    if (images) {
+      const imageFilenames = images.map((image) => image.filename);
       user.picturesAd = imageFilenames;
     }
-  
-    if (!name || !email || !cellphone || !CPF || !RG || !birthDate || !completeAdress || !CEP || !number || !locationState || !neighborhood || !city || !complement || !tipoCadastro) {
-      res.status(422).json({ message: "Campos obrigatórios não foram preenchidos" });
+
+    if (
+      !name ||
+      !email ||
+      !cellphone ||
+      !CPF ||
+      !RG ||
+      !birthDate ||
+      !completeAdress ||
+      !CEP ||
+      !number ||
+      !locationState ||
+      !neighborhood ||
+      !city ||
+      !complement ||
+      !tipoCadastro
+    ) {
+      res
+        .status(422)
+        .json({ message: "Campos obrigatórios não foram preenchidos" });
       return;
     }
-  
+
     if (password !== confirmPassword) {
       res.status(422).json({ message: "As senhas não conferem" });
       return;
     }
-  
+
     const userExist = await User.findOne({ where: { email: email } });
     if (userExist && user.email !== email) {
       res.status(422).json({ message: "Por favor utilize outro email" });
       return;
     }
-  
-    const updatedData = {image:user.image,name,email,cellphone,CPF,RG,birthDate,completeAdress,CEP,number,neighborhood,locationState,complement,city,tipoCadastro,picturesAd: user.picturesAd, descriptionAd,servicesAd,category,whatsappContact,instagramContact,telephoneContact};
-  
+
+    const updatedData = {
+      image: user.image,
+      name,
+      email,
+      cellphone,
+      CPF,
+      RG,
+      birthDate,
+      completeAdress,
+      CEP,
+      number,
+      neighborhood,
+      locationState,
+      complement,
+      city,
+      tipoCadastro,
+      picturesAd: user.picturesAd,
+      descriptionAd,
+      servicesAd,
+      category,
+      whatsappContact,
+      instagramContact,
+      telephoneContact,
+    };
+
     if (password) {
       const salt = await bcrypt.genSalt(12);
       const passwordHash = await bcrypt.hash(password, salt);
       updatedData.password = passwordHash;
     }
-  
+
     try {
       await User.update(updatedData, { where: { id: userId } });
       res.status(200).json({ message: "Usuário atualizado com sucesso" });
@@ -226,5 +332,4 @@ module.exports = class UserController {
       res.status(500).json({ message: "Erro ao atualizar usuário", error });
     }
   }
-  
 };
