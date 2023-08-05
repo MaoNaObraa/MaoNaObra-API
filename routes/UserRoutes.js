@@ -4,7 +4,10 @@ const UserController = require('../controllers/UserController')
 const verifyToken = require('../helpers/verifyToken')
 const {imageUpload} = require("../helpers/imageUpload")
 
-router.post('/register', UserController.register)
+router.post('/register', imageUpload.fields([
+    { name: 'image', maxCount: 1 },
+    { name: 'picturesAd', maxCount: 5 }
+  ]), UserController.register);
 router.post('/login', UserController.login)
 router.get('/checkuser', UserController.checkUser)
 router.get('/:id', UserController.getUserById)

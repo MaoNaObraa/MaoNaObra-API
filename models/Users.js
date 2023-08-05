@@ -1,4 +1,5 @@
 const { DataTypes } = require("sequelize")
+const sequelize = require('sequelize');
 const db = require("../db/conn")
 
 const User = db.define("User", {
@@ -80,7 +81,7 @@ const User = db.define("User", {
     type: DataTypes.STRING,
   },
   picturesAd: {
-    type: DataTypes.JSON,
+    type: sequelize.TEXT,
     defaultValue: [],
   },
   whatsappContact:{
