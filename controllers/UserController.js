@@ -74,8 +74,9 @@ module.exports = class UserController {
       return;
     }
     let profileImage = "";
-    if (req.file) {
-      profileImage = req.file.filename;
+  
+    if (req.files.image) {
+      profileImage = req.files.image[0].filename;
     }
 
     let picturesAdArray = [];
@@ -331,5 +332,31 @@ module.exports = class UserController {
     } catch (error) {
       res.status(500).json({ message: "Erro ao atualizar usuário", error });
     }
+  }
+
+  static async getAll(req, res){
+    const prestadoresDeServico = await User.findAll({
+      where: {
+        tipoCadastro: 'prestadorServico',
+      },
+      attributes: {
+        include: [
+          'image',
+          'descriptionAd',
+          'servicesAd',
+          'category',
+          'picturesAd',
+          'whatsappContact',
+          'instagramContact',
+          'telephoneContact'
+        ]
+      },
+      order: [['createdAt', 'DESC']],
+
+    });
+
+    res.status(200).json({
+      users: prestadoresDeServico,
+    })
   }
 };
