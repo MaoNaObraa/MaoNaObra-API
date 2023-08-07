@@ -72,7 +72,7 @@ const User = db.define("User", {
     allowNull: false,
   },
   descriptionAd: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
   },
   servicesAd: {
     type: DataTypes.TEXT
@@ -81,7 +81,7 @@ const User = db.define("User", {
     type: DataTypes.STRING,
   },
   picturesAd: {
-    type: sequelize.TEXT,
+    type: DataTypes.TEXT,
     defaultValue: [],
   },
   whatsappContact:{

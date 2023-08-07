@@ -1,4 +1,4 @@
-const { where } = require("sequelize");
+const { where, Op, Sequelize } = require("sequelize");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -183,44 +183,6 @@ module.exports = class UserController {
     res.status(200).json({ user });
   }
 
-  static async editAd(req, res) {
-    const userId = req.params.id;
-    const token = getToken(req);
-    const user = await getUserByToken(token);
-
-    const {
-      descriptionAd,
-      servicesAd,
-      category,
-      picturesAd,
-      whatsappContact,
-      instagramContact,
-      telephoneContact,
-    } = req.body;
-
-    const images = req.files;
-    if (images) {
-      const imageFilenames = images.map((image) => image.filename);
-      user.picturesAd = imageFilenames;
-    }
-    const updatedData = {
-      picturesAd: user.picturesAd,
-      descriptionAd,
-      servicesAd,
-      category,
-      whatsappContact,
-      instagramContact,
-      telephoneContact,
-    };
-
-    try {
-      await User.update(updatedData, { where: { id: userId } });
-      res.status(200).json({ message: "Anuncio enviado com sucesso" });
-    } catch (error) {
-      res.status(500).json({ message: "Erro ao enviar anuncio", error });
-    }
-  }
-
   static async editUser(req, res) {
     const userId = req.params.id;
     const token = getToken(req);
@@ -359,4 +321,51 @@ module.exports = class UserController {
       users: prestadoresDeServico,
     })
   }
+
+  static async getPrestadorServico(){
+    const id = req.params.id
+    if (!id) {
+      res.status(400).json({
+        message: 'ID não fornecido.',
+      });
+      return;
+    }
+
+    const prestadorServico = await User.findByPk(id)
+
+    if(!prestadorServico){
+      res.status(404).json({
+        message: 'O prestador de serviço não encontrado.',
+      });
+      return;
+    }
+
+    res.status(200).json({
+      prestadorServico: prestadorServico
+    })
+  }
+
+  static async searchService(req, res) {
+    const query = req.params.query; // Valor pesquisado
+  
+    if (!query) {
+      res.status(400).json({ message: 'Valor de pesquisa não fornecido' });
+      return;
+    }
+  
+    try {
+      const users = await User.findAll({
+        where: {
+          [Op.or]: [
+            { servicesAd: { [Op.like]: `%${query}%` } }, 
+          ],
+        },
+      });
+  
+      res.status(200).json({ users });
+    } catch (error) {
+      res.status(500).json({ message: 'Erro ao buscar usuários', error });
+    }
+  }
+  
 };
