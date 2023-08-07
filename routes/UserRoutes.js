@@ -12,5 +12,7 @@ router.patch('/edit/:id',verifyToken, imageUpload.fields([{ name: 'image', maxCo
 router.get('/', UserController.getAll)
 router.get('/:id', UserController.getPrestadorServico)
 router.get('/search/:query', UserController.searchService);
+router.get('/searchCity/:query', UserController.searchCity);
+router.get('/searchCategory/:query', UserController.searchCategory);
 
 module.exports = router

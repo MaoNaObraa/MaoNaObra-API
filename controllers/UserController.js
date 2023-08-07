@@ -346,8 +346,7 @@ module.exports = class UserController {
   }
 
   static async searchService(req, res) {
-    const query = req.params.query; // Valor pesquisado
-  
+    const query = req.params.query; 
     if (!query) {
       res.status(400).json({ message: 'Valor de pesquisa não fornecido' });
       return;
@@ -358,6 +357,53 @@ module.exports = class UserController {
         where: {
           [Op.or]: [
             { servicesAd: { [Op.like]: `%${query}%` } }, 
+          ],
+        },
+      });
+  
+      res.status(200).json({ users });
+    } catch (error) {
+      res.status(500).json({ message: 'Erro ao buscar usuários', error });
+    }
+  }
+
+  static async searchCity(req, res) {
+    const query = req.params.query;
+  
+    if (!query) {
+      res.status(400).json({ message: 'Valor de pesquisa não fornecido' });
+      return;
+    }
+  
+    try {
+      const users = await User.findAll({
+        where: {
+          tipoCadastro: 'prestadorServico',
+          [Op.or]: [
+            { city: { [Op.like]: `%${query}%` } },
+          ],
+        },
+      });
+  
+      res.status(200).json({ users });
+    } catch (error) {
+      res.status(500).json({ message: 'Erro ao buscar usuários', error });
+    }
+  }
+  static async searchCategory(req, res) {
+    const query = req.params.query;
+  
+    if (!query) {
+      res.status(400).json({ message: 'Valor de pesquisa não fornecido' });
+      return;
+    }
+  
+    try {
+      const users = await User.findAll({
+        where: {
+          tipoCadastro: 'prestadorServico',
+          [Op.or]: [
+            { category: { [Op.like]: `%${query}%` } },
           ],
         },
       });
