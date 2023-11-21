@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon ./index.js 0.0.0.0 5000",
+    "start": "nodemon ./index.js localhost 8080",
     "comentario": "se der erro muda nodemon pra node"
   },
   "keywords": [],

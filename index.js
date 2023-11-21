@@ -14,7 +14,7 @@ app.use(express.static('public'))
 app.use('/users', UserRoutes)
 
 conn.sync().then(()=>{
-    app.listen(5000)
+    app.listen(8080)
 }).catch((error)=> console.log(error))
 
 
